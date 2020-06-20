@@ -1,0 +1,19 @@
+{
+  "name": "server-scripts",
+  "version": "1.0.0",
+  "description": "Guideline и скрипты для подготовки сервера под Node.js + MongoDB + Redis.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koalex/server-scripts.git"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Konstantin Aleksandrov",
+    "email": "alexandrovkm@gmail.com",
+    "url": "https://github.com/koalex"
+  },
+  "bugs": {
+    "url": "https://github.com/koalex/server-scripts/issues"
+  },
+  "homepage": "https://github.com/koalex/server-scripts#readme"
+}
