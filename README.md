@@ -75,3 +75,21 @@ nano /etc/ssh/sshd_config
 ```sh
 systemctl restart sshd
 ```
+#### Настройка *firewall*-а
+В данном примере показывается настройка *firewall*-а **ufw**.
+Если он не установлен (для проверки введите например `sudo ufw status`), то устанавливаем, но сначала лучше обновить пакеты:
+```sh
+sudo apt update && sudo apt upgrade
+```
+и устанавливаем сам *firewall*:
+```sh
+sudo apt install ufw
+```
+Добавляем *OpenSSH* профиль в *firewall*:
+```sh
+sudo ufw allow 'OpenSSH'
+```
+Теперь нужно запустить *firewall*:
+```sh
+sudo ufw enable
+```
