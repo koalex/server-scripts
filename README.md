@@ -94,6 +94,28 @@ sudo ufw allow 'OpenSSH'
 sudo ufw enable
 ```
 
+#### Настройка времени на сервере используя протокол NTP
+Открываем файл с настройками времени:
+```sh
+sudo nano /etc/systemd/timesyncd.conf
+```
+В этом файле нужно добавить/раскомментировать:
+```
+[Time]
+NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org
+FallbackNTP=0.pool.ntp.org 1.pool.ntp.org 0.fr.pool.ntp.org
+```
+После выполнить:
+```sh
+sudo timedatectl set-ntp true
+```
+И проверить статус:
+```sh
+timedatectl status
+```
+Настройка времени через **systemd-timesyncd** доступна в относительно свежих дистрибутивах Linux (в тех где присутствует *Systemd*).
+В более старых придётся устанавливать **ntpdate** и [настраивать](https://help.ubuntu.ru/wiki/%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE_%D0%BF%D0%BE_ubuntu_server/%D1%81%D0%B5%D1%82%D1%8C/ntp) через него.
+
 #### Установка *NODE.js*
 Для возможности использовать различные версии *NODE.js* нужно установить [NVM](https://github.com/nvm-sh/nvm).
 
