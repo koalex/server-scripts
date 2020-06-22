@@ -93,3 +93,21 @@ sudo ufw allow 'OpenSSH'
 ```sh
 sudo ufw enable
 ```
+
+#### Установка *NODE.js*
+Для возможности использовать различные версии *NODE.js* нужно установить [NVM](https://github.com/nvm-sh/nvm).
+
+Для установки потребуется [cURL](https://curl.haxx.se/):
+```sh
+sudo apt install curl
+```
+Устанавливаем *NVM*:
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+```
+После установки *NVM* нужно обновить сессию, достаточно закрыть и открыть заново терминал.
+
+И устанавливаем последнюю LTS-версию *NODE.js*:
+```sh
+nvm install --lts
+```
