@@ -121,6 +121,20 @@ timedatectl status
 Настройка времени через **systemd-timesyncd** доступна в относительно свежих дистрибутивах Linux (в тех где присутствует *Systemd*).
 В более старых придётся устанавливать **ntpdate** и [настраивать](https://help.ubuntu.ru/wiki/%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE_%D0%BF%D0%BE_ubuntu_server/%D1%81%D0%B5%D1%82%D1%8C/ntp) через него.
 
+#### Изменение имени компьютера
+Меняем тут:
+```sh
+sudo nano /etc/hostname
+```
+и тут:
+```sh
+sudo nano /etc/hosts
+```
+и рестартуем сервер:
+```sh
+sudo reboot
+```
+
 #### Установка *NODE.js*
 Для возможности использовать различные версии *NODE.js* нужно установить [NVM](https://github.com/nvm-sh/nvm).
 
