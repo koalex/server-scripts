@@ -221,7 +221,7 @@ sudo systemctl start certbot.timer
 
 Если нужно вручную обновить сертификаты, то вводим:
 ```sh
-sudo certbot renew --dry-run --post-hook "systemctl reload nginx"
+sudo certbot renew --post-hook "systemctl reload nginx"
 ```
 
 Настраиваем права для папки, где будут храниться сайты: `sudo chown -R $USER:$USER /var/www`
