@@ -172,6 +172,7 @@ sudo ufw allow 'Nginx HTTP'
 ```
 
 #### Установка *Certbot* и создание сертификата для *NGINX*
+[Официальная документация](https://certbot.eff.org/lets-encrypt/ubuntufocal-nginx)
 ```sh
 sudo apt install software-properties-common && sudo add-apt-repository universe && sudo add-apt-repository ppa:certbot/certbot
 ```
