@@ -195,7 +195,7 @@ sudo certbot --nginx -d домен.com -d www.домен.com -d домен.ru -d
 
 Перезагружаем *NGINX*: `sudo systemctl reload nginx`
 
-Сертификаты Let’s Encrypt’s валидны всего 30 дней.
+Сертификаты Let’s Encrypt’s валидны всего [90 дней](https://letsencrypt.org/2015/11/09/why-90-days.html).
 Для автообновления сертификатов нужно выполнить:
 ```sh
 sudo systemctl enable certbot.timer
