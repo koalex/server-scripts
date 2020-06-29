@@ -1,0 +1,144 @@
+server {
+    set $ip_address 89.223.127.63;
+    set $base /var/www/домен;
+
+    root $base/public;
+    index index.html index.htm;
+    server_name www.домен.com домен.com www.домен.ru домен.ru;
+
+    if ($host = $ip_address) {
+        return 444;
+    }
+
+    # Anti-bot
+    # TODO: https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker
+    if ($http_user_agent ~* (360Spider|80legs.com|Abonti|AcoonBot|Acunetix|adbeat_bot|AddThis.com|adidxbot|ADmantX|AhrefsBot|AngloINFO|Antelope|Applebot|BaiduSpider|BeetleBot|billigerbot|binlar|bitlybot|BlackWidow|BLP_bbot|BoardReader|Bolt\ 0|BOT\ for\ JCE|Bot\ mailto\:craftbot@yahoo\.com|casper|CazoodleBot|CCBot|checkprivacy|ChinaClaw|chromeframe|Clerkbot|Cliqzbot|clshttp|CommonCrawler|comodo|CPython|crawler4j|Crawlera|CRAZYWEBCRAWLER|Curious|Curl|Custo|CWS_proxy|Default\ Browser\ 0|diavol|DigExt|Digincore|DIIbot|discobot|DISCo|DoCoMo|DotBot|Download\ Demon|DTS.Agent|EasouSpider|eCatch|ecxi|EirGrabber|Elmer|EmailCollector|EmailSiphon|EmailWolf|Exabot|ExaleadCloudView|ExpertSearchSpider|ExpertSearch|Express\ WebPictures|ExtractorPro|extract|EyeNetIE|Ezooms|F2S|FastSeek|feedfinder|FeedlyBot|FHscan|finbot|Flamingo_SearchEngine|FlappyBot|FlashGet|flicky|Flipboard|g00g1e|Genieo|genieo|GetRight|GetWeb\!|GigablastOpenSource|GozaikBot|Go\!Zilla|Go\-Ahead\-Got\-It|GrabNet|grab|Grafula|GrapeshotCrawler|GTB5|GT\:\:WWW|Guzzle|harvest|heritrix|HMView|HomePageBot|HTTP\:\:Lite|HTTrack|HubSpot|ia_archiver|icarus6|IDBot|id\-search|IlseBot|Image\ Stripper|Image\ Sucker|Indigonet|Indy\ Library|integromedb|InterGET|InternetSeer\.com|Internet\ Ninja|IRLbot|ISC\ Systems\ iRc\ Search\ 2\.1|jakarta|Java|JetCar|JobdiggerSpider|JOC\ Web\ Spider|Jooblebot|kanagawa|KINGSpider|kmccrew|larbin|LeechFTP|libwww|Lingewoud|LinkChecker|linkdexbot|LinksCrawler|LinksManager\.com_bot|linkwalker|LinqiaRSSBot|LivelapBot|ltx71|LubbersBot|lwp\-trivial|Mail.RU_Bot|masscan|Mass\ Downloader|maverick|Maxthon$|Mediatoolkitbot|MegaIndex|MegaIndex|megaindex|MFC_Tear_Sample|Microsoft\ URL\ Control|microsoft\.url|MIDown\ tool|miner|Missigua\ Locator|Mister\ PiX|mj12bot|Mozilla.*Indy|Mozilla.*NEWT|MSFrontPage|msnbot|Navroad|NearSite|NetAnts|netEstate|NetSpider|NetZIP|Net\ Vampire|NextGenSearchBot|nutch|Octopus|Offline\ Explorer|Offline\ Navigator|OpenindexSpider|OpenWebSpider|OrangeBot|Owlin|PageGrabber|PagesInventory|panopta|panscient\.com|Papa\ Foto|pavuk|pcBrowser|PECL\:\:HTTP|PeoplePal|Photon|PHPCrawl|planetwork|PleaseCrawl|PNAMAIN.EXE|PodcastPartyBot|prijsbest|proximic|psbot|purebot|pycurl|QuerySeekerSpider|R6_CommentReader|R6_FeedFetcher|RealDownload|ReGet|Riddler|Rippers\ 0|rogerbot|RSSingBot|rv\:1.9.1|RyzeCrawler|SafeSearch|SBIder|Scrapy|Scrapy|Screaming|SeaMonkey$|search.goo.ne.jp|SearchmetricsBot|search_robot|SemrushBot|Semrush|SentiBot|SEOkicks|SeznamBot|ShowyouBot|SightupBot|SISTRIX|sitecheck\.internetseer\.com|siteexplorer.info|SiteSnagger|skygrid|Slackbot|Slurp|SmartDownload|Snoopy|Sogou|Sosospider|spaumbot|Steeler|sucker|SuperBot|Superfeedr|SuperHTTP|SurdotlyBot|Surfbot|tAkeOut|Teleport\ Pro|TinEye-bot|TinEye|Toata\ dragostea\ mea\ pentru\ diavola|Toplistbot|trendictionbot|TurnitinBot|turnit|Twitterbot|URI\:\:Fetch|urllib|Vagabondo|Vagabondo|vikspider|VoidEYE|VoilaBot|WBSearchBot|webalta|WebAuto|WebBandit|WebCollage|WebCopier|WebFetch|WebGo\ IS|WebLeacher|WebReaper|WebSauger|Website\ eXtractor|Website\ Quester|WebStripper|WebWhacker|WebZIP|Web\ Image\ Collector|Web\ Sucker|Wells\ Search\ II|WEP\ Search|WeSEE|Wget|Widow|WinInet|woobot|woopingbot|worldwebheritage.org|Wotbox|WPScan|WWWOFFLE|WWW\-Mechanize|Xaldon\ WebSpider|XoviBot|yacybot|Yahoo|YandexBot|Yandex|YisouSpider|zermelo|Zeus|zh-CN|ZmEu|ZumBot|ZyBorg) ) {
+        return 444;
+    }
+
+    # security headers
+    add_header X-Frame-Options           "SAMEORIGIN" always;
+    add_header X-XSS-Protection          "1; mode=block" always;
+    add_header X-Content-Type-Options    "nosniff" always;
+    add_header Referrer-Policy           "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy   "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # . files
+    location ~ /\.(?!well-known) {
+        deny all;
+    }
+
+    location = /favicon.ico {
+        log_not_found off;
+        access_log    off;
+    }
+
+    # robots.txt
+    location = /robots.txt {
+        log_not_found off;
+        access_log    off;
+    }
+
+    # assets, media
+    location ~* \.(?:css(\.map)?|js(\.map)?|jpe?g|png|gif|ico|cur|heic|webp|tiff?|mp3|m4a|aac|ogg|midi?|wav|mp4|mov|webm|mpe?g|avi|ogv|flv|wmv)$ {
+        expires    7d;
+        access_log off;
+    }
+
+    # svg, fonts
+    location ~* \.(?:svgz?|ttf|ttc|otf|eot|woff2?)$ {
+        add_header Access-Control-Allow-Origin "*";
+        expires    7d;
+        access_log off;
+    }
+
+    #location /files { # X-Accel-Redirect
+    #    root /var/www/files;
+    #    internal;
+    #}
+
+    location / {
+        aio             threads;
+        try_files       $uri $uri/ = @proxy; # Ищем файл или папку иначе
+        #try_files      $uri $uri/ /index.html; # для Single Page Application
+    }
+
+    # reverse proxy
+    location @proxy {
+        proxy_pass                         https://127.0.0.1:1443;
+        proxy_redirect                     off;
+        proxy_http_version                 1.1;
+        proxy_cache_bypass                 $http_upgrade;
+        #proxy_intercept_errors             on; # любой ответ с HTTP статусом 300 или выше будет обрабатываться с помощью директивы error_page.
+        recursive_error_pages              on;
+
+        # Proxy headers
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        "upgrade";
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host  $host;
+        proxy_set_header X-Forwarded-Port  $server_port;
+        #error_page                         404 /404.html;
+        #error_page                         500 502 503 504 /50x.html;
+    }
+
+    # gzip
+    gzip              on;
+    gzip_static       on;
+    gzip_vary         on;
+    gzip_proxied      any;
+    gzip_comp_level   9;
+    gzip_min_length   1000;
+    gzip_types        text/plain text/css text/xml application/json application/pdf application/rtf application/javascript application/x-javascript application/rss+xml application/atom+xml application/msword application/vnd.ms-excel application/x-font-ttf image/x-icon image/svg+xml;
+
+    etag off;
+
+    # brotli
+    #brotli            on;
+    #brotli_static     on;
+    #brotli_comp_level 6;
+    #brotli_types      text/plain text/css text/xml application/json application/pdf application/rtf application/javascript application/x-javascript application/rss+xml application/atom+xml application/msword application/vnd.ms-excel application/x-font-ttf image/x-icon image/svg+xml;
+
+    listen [::]:443 ssl ipv6only=on;
+    listen 443 ssl;
+
+    ssl_certificate          /etc/letsencrypt/live/домен/fullchain.pem;
+    ssl_certificate_key      /etc/letsencrypt/live/домен/privkey.pem;
+    ssl_trusted_certificate  /etc/letsencrypt/live/домен/chain.pem;
+
+    #ssl_session_timeout    1d;             # есть в options-ssl-nginx.conf
+    #ssl_session_cache      shared:SSL:10m; # есть в options-ssl-nginx.conf
+    #ssl_session_tickets    off;            # есть в options-ssl-nginx.conf
+    include                 /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam             /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+server {
+    if ($host = www.домен.ru) {
+        return 301 https://$host$request_uri;
+    }
+
+
+    if ($host = домен.ru) {
+            return 301 https://$host$request_uri;
+    }
+
+
+    if ($host = www.домен.com) {
+        return 301 https://$host$request_uri;
+    }
+
+
+    if ($host = домен.com) {
+        return 301 https://$host$request_uri;
+    }
+
+    listen 80;
+    listen [::]:80 ipv6only=on;
+    server_name www.домен.com домен.com www.домен.ru домен.ru;
+    return 444;
+}

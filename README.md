@@ -152,3 +152,77 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 ```sh
 nvm install --lts
 ```
+
+#### Установка и настройка *NGINX*
+```sh
+sudo apt install nginx
+```
+На всякий случай разблокируем сервис *nginx*
+```sh
+sudo systemctl unmask nginx.service
+```
+Чтобы посмотреть для каких приложений установлен профиль:
+```sh
+sudo ufw app list
+```
+Добавлем профили *nginx*:
+```sh
+sudo ufw allow 'Nginx HTTPS'
+sudo ufw allow 'Nginx HTTP'
+```
+
+#### Установка *Certbot* и создание сертификата для *NGINX*
+```sh
+sudo apt install software-properties-common && sudo add-apt-repository universe && sudo add-apt-repository ppa:certbot/certbot
+```
+```sh
+sudo apt install certbot python3-certbot-nginx
+```
+
+Перед добавлением сертификата для доменов должен быть правильно настроен **DNS**.
+**A/AAAA** записи **DNS**-сервера должны содержать *IP-адрес* вашего сервера и только потом выполнить:
+```sh
+# можно сразу перечислить все домены
+sudo certbot --nginx -d домен.com -d www.домен.com -d домен.ru -d www.домен.ru
+```
+после этого появится сгенерированный конфиг с именем `default` в папке `/etc/nginx/sites-available`,
+но лучше его модифицировать под свои нужды.
+Создать конфиг можно на сервисе [nginxconfig.io](https://nginxconfig.io).
+Либо можно взять за основу конфиг в папке [nginx](nginx/).
+
+Проверяем конфиг на наличие ошибок: `sudo nginx -t`
+
+Перезагружаем *NGINX*: `sudo systemctl reload nginx`
+
+Сертификаты Let’s Encrypt’s валидны всего 30 дней.
+Для автообновления сертификатов нужно выполнить:
+```sh
+sudo systemctl enable certbot.timer
+```
+Теперь добавляем рестарт *NGINX*-а после каждого обновления сертификатов:
+```sh
+# создаём файл с хуками, которые будут выполняться после каждого автообновления
+sudo touch /etc/letsencrypt/renewal-hooks/post/reload-services.sh
+```
+и прописываем там:
+```sh
+#!/bin/sh
+systemctl reload nginx
+```
+так же нужно установить права для хука:
+```sh
+chmod 750 /etc/letsencrypt/renewal-hooks/post/reload-services.sh
+```
+и стартуем сервис автообновления:
+```sh
+sudo systemctl start certbot.timer
+```
+расписание автообновлений можно посмотреть набрав `systemctl list-timers certbot.timer`.
+
+Если нужно вручную обновить сертификаты, то вводим:
+```sh
+sudo certbot renew --dry-run --post-hook "systemctl reload nginx"
+```
+
+Настраиваем права для папки, где будут храниться сайты: `sudo chown -R $USER:$USER /var/www`
+и создаём папку `/var/www/домен/public`, в которую будем складывать статику для *NGINX*.
