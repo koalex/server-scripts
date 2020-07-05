@@ -1,0 +1,13 @@
+[Unit]
+Description=MongoDB Database Wrapper
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+User=mongodb
+Group=mongodb
+
+[Install]
+WantedBy=multi-user.target

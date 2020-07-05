@@ -227,3 +227,133 @@ sudo certbot renew --post-hook "systemctl reload nginx"
 
 Настраиваем права для папки, где будут храниться сайты: `sudo chown -R $USER:$USER /var/www`
 и создаём папку `/var/www/домен/public`, в которую будем складывать статику для *NGINX*.
+
+#### Установка и настройка MongoDB
+Установка MongoDB 4.2 Community Edition на Ubuntu 20 взята с [официальной документации](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).
+Если нужно установить на другие ОС, то используем [официальный tutorial](https://docs.mongodb.com/manual/installation/#mongodb-community-edition-installation-tutorials).
+
+> Конфиг *mongodb* по умолчанию лежит в `/etc/mongod.conf`, для MacOS в `/usr/local/etc/mongod.conf`
+> Логи по умолчанию лежат в папке `/var/log/mongodb`
+> БД по умолчанию лежит в папке `/var/lib/mongodb`
+
+##### Создание и настройка репликации
+```sh
+# создаём папки для БД и арбитра
+sudo mkdir /data && sudo mkdir /data/rs0 && sudo mkdir /data/rs1 && sudo mkdir /data/arbiter0
+```
+
+Меняем владельца на *mongodb:mongodb* от которой будет запускаться *БД*:
+```sh
+sudo chown -R mongodb:mongodb /data/
+```
+
+Генерируем keyFile для реплик (если Permission Denied, то из под root-а):
+```sh
+openssl rand -base64 756 > /etc/mongod.keyfile
+chown mongodb:mongodb /etc/mongod.keyfile
+chmod 400 /etc/mongod.keyfile
+```
+
+Заменяем конфиг `/etc/mongod.conf` на [mongod.conf](mongodb/mongod.conf) и запускаем все серверы реплик:
+<!-- sudo mongod --dbpath /data/rs0 --config /etc/mongod.conf --fork -->
+```sh
+sudo mongod --dbpath /data/rs0 --port 27017 --config /etc/mongod.conf --fork
+```
+```sh
+sudo mongod --dbpath /data/rs1 --port 27018 --config /etc/mongod.conf --fork
+```
+```sh
+sudo mongod --dbpath /data/arbiter0 --port 27019 --config /etc/mongod.conf --fork
+```
+Подключаемся к одному из серверов (только не к арбитру):
+```sh
+mongo --port 27017
+```
+и выполняем:
+```sh
+rs.initiate()
+```
+После добавляем остальные реплики:
+```sh
+rs.add('localhost:27018')
+rs.addArb('localhost:27019')
+```
+
+Теперь нужно проверить, что репликация работает:
+```sh
+use test
+db.users.insertOne({ first_name: 'John', last_name: 'Smith' })
+```
+
+подключаемся к реплике (можно в соседней вкладке):
+```sh
+mongo --port 27018
+```
+и выполняем:
+```sh
+rs.slaveOk()
+use test
+db.users.find()
+```
+
+Создание пользователей (**нужно выполнять на master**-е):
+```sh
+use admin
+```
+```sh
+# создание основных пользователей, роль 'userAdminAnyDatabase' позволяет только создавать пользователей и назначать им роли
+db.createUser({user: "admin", pwd: "пароль", roles: [{ role: "userAdminAnyDatabase", db: "admin" }]})
+```
+```sh
+db.createUser({user: "root", pwd: "пароль", roles: [{ role: "root", db: "admin" }]})
+```
+
+```sh
+# создание пользователя для вашей БД
+db.createUser({user: "пользователь", pwd: "пароль", roles: [{ role: "readWrite", db: "имя_БД" }]})
+```
+
+Закрываем все серверы БД, но **сначала нужно выключить арбитра!**:
+```sh
+# подключаемся к арбитру
+mongo --port 27019
+use admin
+db.shutdownServer()
+```
+```sh
+# подключаемся к реплике №1
+mongo --port 27017
+use admin
+db.shutdownServer()
+```
+```sh
+# подключаемся к реплике №2
+mongo --port 27018
+use admin
+db.shutdownServer()
+```
+
+В файле `/etc/mongod.conf` нужно раскомментировать весь блок `security`.
+
+Настраиваем *systemd* для реплик:
+Создаём/заменяем файл `/lib/systemd/system/mongod.service` на [mongod.service](mongodb/mongod.service)
+```sh
+sudo nano /lib/systemd/system/mongod.service
+```
+а так же копируем файлы [mongod-rs0.service](mongodb/mongod-rs0.service), [mongod-rs1.service](mongodb/mongod-rs1.service)
+и [mongod-arbiter0.service](mongodb/mongod-arbiter0.service) в каталог `/lib/systemd/system/`.
+
+Перезапускаем демона *systemd*:
+```sh
+sudo systemctl daemon-reload
+```
+
+```sh
+# запуск сервиса
+sudo systemctl start mongod
+```
+
+```sh
+# добавляем запуск сервера после перезагрузки системы
+sudo systemctl enable mongod mongod-rs0 mongod-rs1 mongod-arbiter0
+```

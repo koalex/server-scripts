@@ -1,0 +1,43 @@
+[Unit]
+Description=MongoDB Replica Set 1
+Documentation=https://docs.mongodb.org/manual
+After=mongod.service
+# Если systemd остановит или рестартует mongod.service, тогда и этот сервис тоже
+PartOf=mongod.service
+
+[Service]
+ExecStart=/usr/bin/mongod --dbpath /data/rs1 --port 27018 --config /etc/mongod.conf
+Type=simple
+#Type=forking
+#PIDFile=/var/run/mongodb/mongod-rs1.pid
+User=mongodb
+Group=mongodb
+#EnvironmentFile=-/etc/default/mongod
+#PermissionsStartOnly=true
+#ExecStartPre=/bin/chown -R mongodb:mongodb /data
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=10
+
+# file size
+LimitFSIZE=infinity
+# cpu time
+LimitCPU=infinity
+# virtual memory size
+LimitAS=infinity
+# open files
+LimitNOFILE=64000
+# processes/threads
+LimitNPROC=64000
+# locked memory
+LimitMEMLOCK=infinity
+# total threads (user+kernel)
+TasksMax=infinity
+TasksAccounting=false
+
+# Recommended limits for for mongod as specified in
+# http://docs.mongodb.org/manual/reference/ulimit/#recommended-settings
+
+[Install]
+# Этот юнит должен запускаться при запуске mongod.service
+WantedBy=mongod.service
