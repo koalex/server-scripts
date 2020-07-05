@@ -357,3 +357,25 @@ sudo systemctl start mongod
 # добавляем запуск сервера после перезагрузки системы
 sudo systemctl enable mongod mongod-rs0 mongod-rs1 mongod-arbiter0
 ```
+
+#### Установка и настройка Redis
+Рекомендуется к прочтению - [установка и обеспечение безопасности Redis](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04-ru)
+```sh
+sudo apt update
+```
+```sh
+sudo apt install redis-server
+```
+
+Добавляем изменения в конфиг *redis*-а:
+```sh
+sudo nano /etc/redis/redis.conf
+```
+- заменить `supervised no` на `supervised systemd`.
+- убедиться, что есть `bind 127.0.0.1 ::1`
+- раскомментировать и заменить `requirepass foobared` на `requirepass пароль`
+
+И перезапускаем сервис:
+```sh
+sudo systemctl restart redis.service
+```
